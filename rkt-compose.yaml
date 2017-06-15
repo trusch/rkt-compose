@@ -10,9 +10,9 @@ manifest:
           - name: version
             value: v3.2.0
       app:
-        exec: [ '/usr/local/bin/etcd', '--log-output', 'stdout' ]
+        exec: [ /usr/local/bin/etcd, --log-output, stdout ]
     - name: debian
       image:
         name: docker://debian:testing
       app:
-        exec: [tail, -f, /dev/null]
+        exec: [ tail, -f, /dev/null ]
