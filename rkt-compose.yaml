@@ -1,0 +1,13 @@
+name: test-pod
+manifest:
+  apps:
+    - name: etcd
+      image:
+        name: quay.io/coreos/etcd
+      app:
+        exec: [ '/usr/local/bin/etcd', '--log-output', 'stdout' ]
+    - name: debian
+      image:
+        name: docker://debian
+      app:
+        exec: [tail, -f, /dev/null]

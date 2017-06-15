@@ -1,0 +1,11 @@
+package: github.com/trusch/rkt-compose
+import:
+- package: github.com/appc/spec
+  version: ~0.8.10
+  subpackages:
+  - schema
+  - schema/types
+- package: github.com/ghodss/yaml
+  version: ~1.0.0
+- package: github.com/spf13/cobra
+- package: github.com/spf13/viper
