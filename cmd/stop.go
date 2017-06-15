@@ -31,7 +31,7 @@ import (
 var stopCmd = &cobra.Command{
 	Use:   "stop",
 	Short: "stop your pod",
-	Long: `stop your pod.`,
+	Long:  `stop your pod.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		composeFile := getComposeFile()
 		err := lib.Stop(composeFile.Name)

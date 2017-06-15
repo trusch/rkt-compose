@@ -21,16 +21,16 @@
 package cmd
 
 import (
-	"log"
-	"github.com/trusch/rkt-compose/lib"
 	"github.com/spf13/cobra"
+	"github.com/trusch/rkt-compose/lib"
+	"log"
 )
 
 // restartCmd represents the restart command
 var restartCmd = &cobra.Command{
 	Use:   "restart",
 	Short: "restart your pod",
-	Long: `restart your pod`,
+	Long:  `restart your pod`,
 	Run: func(cmd *cobra.Command, args []string) {
 		composeFile := getComposeFile()
 		err := lib.Restart(composeFile.Name)

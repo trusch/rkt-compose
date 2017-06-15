@@ -21,16 +21,16 @@
 package cmd
 
 import (
-	"log"
-	"github.com/trusch/rkt-compose/lib"
 	"github.com/spf13/cobra"
+	"github.com/trusch/rkt-compose/lib"
+	"log"
 )
 
 // logsCmd represents the logs command
 var logsCmd = &cobra.Command{
 	Use:   "logs",
 	Short: "view logs of your pod",
-	Long: `view logs of your pod`,
+	Long:  `view logs of your pod`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := lib.Logs(args); err != nil {
 			log.Fatal(err)

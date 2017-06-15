@@ -21,16 +21,16 @@
 package cmd
 
 import (
-	"log"
-	"github.com/trusch/rkt-compose/lib"
 	"github.com/spf13/cobra"
+	"github.com/trusch/rkt-compose/lib"
+	"log"
 )
 
 // statusCmd represents the status command
 var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "get status of your pod",
-	Long: `get status of your pod`,
+	Long:  `get status of your pod`,
 	Run: func(cmd *cobra.Command, args []string) {
 		composeFile := getComposeFile()
 		err := lib.Status(composeFile.Name)
