@@ -1,13 +1,18 @@
-name: test-pod
+name: example-pod
+cpu: 250m
+memory: 32M
 manifest:
   apps:
     - name: etcd
       image:
         name: quay.io/coreos/etcd
+        labels:
+          - name: version
+            value: v3.2.0
       app:
         exec: [ '/usr/local/bin/etcd', '--log-output', 'stdout' ]
     - name: debian
       image:
-        name: docker://debian
+        name: docker://debian:testing
       app:
         exec: [tail, -f, /dev/null]
