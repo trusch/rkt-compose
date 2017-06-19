@@ -1,0 +1,169 @@
+# Gitlab Pod Definition
+---
+name: gitlab
+cpu: 1000m
+memory: 1G
+extra: ["--debug", "--hostname=gitlab", "--hosts-entry=127.0.0.1=gitlab" ]
+manifest: # This maps one to one to the pod-manifest.
+  apps:
+    - name: gitlab
+      image:
+        name: quay.io/sameersbn/gitlab
+        labels:
+          - name: version
+            value: 9.2.5
+      app:
+        exec: [ "/bin/bash", "-c", "sleep 5; /sbin/entrypoint.sh app:start;" ]
+        workingDirectory: "/home/git/gitlab"
+        environment:
+          - name: "PATH"
+            value: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+          - name: "GITLAB_VERSION"
+            value: "9.2.5"
+          - name: "RUBY_VERSION"
+            value: "2.3"
+          - name: "GOLANG_VERSION"
+            value: "1.6.3"
+          - name: "GITLAB_SHELL_VERSION"
+            value: "5.0.4"
+          - name: "GITLAB_WORKHORSE_VERSION"
+            value: "2.0.0"
+          - name: "GITLAB_PAGES_VERSION"
+            value: "0.4.2"
+          - name: "GITLAB_USER"
+            value: "git"
+          - name: "GITLAB_HOME"
+            value: "/home/git"
+          - name: "GITLAB_LOG_DIR"
+            value: "/var/log/gitlab"
+          - name: "GITLAB_CACHE_DIR"
+            value: "/etc/docker-gitlab"
+          - name: "RAILS_ENV"
+            value: "production"
+          - name: "GITLAB_INSTALL_DIR"
+            value: "/home/git/gitlab"
+          - name: "GITLAB_SHELL_INSTALL_DIR"
+            value: "/home/git/gitlab-shell"
+          - name: "GITLAB_WORKHORSE_INSTALL_DIR"
+            value: "/home/git/gitlab-workhorse"
+          - name: "GITLAB_PAGES_INSTALL_DIR"
+            value: "/home/git/gitlab-pages"
+          - name: "GITLAB_DATA_DIR"
+            value: "/home/git/data"
+          - name: "GITLAB_BUILD_DIR"
+            value: "/etc/docker-gitlab/build"
+          - name: "GITLAB_RUNTIME_DIR"
+            value: "/etc/docker-gitlab/runtime"
+          - name: "DB_HOST"
+            value: "localhost"
+          - name: "REDIS_HOST"
+            value: "localhost"
+          - name: "GITLAB_SECRETS_DB_KEY_BASE"
+            value: "alkjdh981723lknflnkagasopiucm,nxclkjq92sd"
+          - name: "GITLAB_SECRETS_SECRET_KEY_BASE"
+            value: "sdsjdh981723lknalnkhgasopiucm,nxclkj44442"
+          - name: "GITLAB_SECRETS_OTP_KEY_BASE"
+            value: "cccjdh981723lknflnkhgasoaiucm,nxclkjq9231"
+          - name: "DB_NAME"
+            value: "gitlabhq_production"
+          - name: "DB_USER"
+            value: "gitlab"
+          - name: "DB_PASS"
+            value: "password"
+        mountPoints:
+          - name: "gitlab-data"
+            path: "/home/git/data"
+          - name: "gitlab-logs"
+            path: "/var/log/gitlab"
+        ports:
+          - name: "ssh"
+            protocol: "tcp"
+            port: 22
+          - name: "https"
+            protocol: "tcp"
+            port: 443
+          - name: "http"
+            protocol: "tcp"
+            port: 80
+    - name: redis
+      image:
+        name: "quay.io/sameersbn/redis"
+        labels:
+          - name: "version"
+            value: "latest"
+      app:
+        exec: [ "/sbin/entrypoint.sh" ]
+        environment:
+          - name: "PATH"
+            value: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+          - name: "REDIS_USER"
+            value: "redis"
+          - name: "REDIS_DATA_DIR"
+            value: "/var/lib/redis"
+          - name: "REDIS_LOG_DIR"
+            value: "/var/log/redis"
+        mountPoints:
+          - name: "redis-data"
+            path: "/var/lib/redis"
+        ports:
+          - name: "redis"
+            protocol: "tcp"
+            port: 6379
+    - name: postgresql
+      image:
+        name: "quay.io/sameersbn/postgresql"
+        labels:
+          - name: "version"
+            value: "9.6-2"
+      app:
+        exec: [ "/sbin/entrypoint.sh" ]
+        workingDirectory: "/var/lib/postgresql"
+        environment:
+          - name: "PATH"
+            value: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+          - name: "PG_APP_HOME"
+            value: "/etc/docker-postgresql"
+          - name: "PG_VERSION"
+            value: "9.6"
+          - name: "PG_USER"
+            value: "postgres"
+          - name: "PG_HOME"
+            value: "/var/lib/postgresql"
+          - name: "PG_RUNDIR"
+            value: "/run/postgresql"
+          - name: "PG_LOGDIR"
+            value: "/var/log/postgresql"
+          - name: "PG_CERTDIR"
+            value: "/etc/postgresql/certs"
+          - name: "PG_BINDIR"
+            value: "/usr/lib/postgresql/9.6/bin"
+          - name: "PG_DATADIR"
+            value: "/var/lib/postgresql/9.6/main"
+          - name: "DB_NAME"
+            value: "gitlabhq_production"
+          - name: "DB_USER"
+            value: "gitlab"
+          - name: "DB_PASS"
+            value: "password"
+          - name: "DB_EXTENSION"
+            value: "pg_trgm"
+        mountPoints:
+          - name: "postgresql-data"
+            path: "/var/lib/postgresql"
+          - name: "postgresql-run"
+            path: "/run/postgresql"
+        ports:
+          - name: "postgresql"
+            protocol: "tcp"
+            port: 5432
+  volumes:
+    - name: gitlab-data
+      source: ./gitlab/gitlab-data
+    - name: gitlab-logs
+      source: ./gitlab/gitlab-logs
+    - name: redis-data
+      source: ./gitlab/redis-data
+    - name: postgresql-data
+      source: ./gitlab/postgresql-data
+    - name: postgresql-run
+      source: ./gitlab/postgresql-run
