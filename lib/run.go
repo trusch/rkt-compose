@@ -7,8 +7,8 @@ import (
 	"os/exec"
 )
 
-func Run(podManifest, networks string, interactive, verbose bool) error {
-	args := createRunArgList(podManifest, networks, interactive, verbose)
+func Run(podManifest, networks string, interactive, verbose bool, extra []string) error {
+	args := createRunArgList(podManifest, networks, interactive, verbose, extra)
 	cmd := exec.Command("rkt", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -17,7 +17,7 @@ func Run(podManifest, networks string, interactive, verbose bool) error {
 	return cmd.Run()
 }
 
-func createRunArgList(podManifest, networks string, interactive, verbose bool) []string {
+func createRunArgList(podManifest, networks string, interactive, verbose bool, extra []string) []string {
 	pwd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -30,6 +30,9 @@ func createRunArgList(podManifest, networks string, interactive, verbose bool) [
 	}
 	if verbose {
 		parts = append(parts, "--debug")
+	}
+	if len(extra) > 0 {
+		parts = append(parts, extra...)
 	}
 	return parts
 }

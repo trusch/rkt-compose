@@ -5,8 +5,8 @@ import (
 	"os/exec"
 )
 
-func Start(name string, podManifest, networks string, verbose bool) error {
-	args := createRunArgList(podManifest, networks, false, verbose)
+func Start(name string, podManifest, networks string, verbose bool, extra []string) error {
+	args := createRunArgList(podManifest, networks, false, verbose, extra)
 	args = append([]string{"--unit=" + name, "rkt"}, args...)
 	cmd := exec.Command("systemd-run", args...)
 	cmd.Stdout = os.Stdout

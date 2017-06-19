@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -19,12 +20,13 @@ type ComposeFile struct {
 	Cpu      string
 	Memory   string
 	Networks []string
+	Extra    []string
 	Manifest PodManifest
 }
 
 type PodManifest struct {
 	Apps            []*RuntimeApp         `json:"apps"`
-	Volumes         []types.Volume        `json:"volumes"`
+	Volumes         []*Volume             `json:"volumes"`
 	Isolators       []types.Isolator      `json:"isolators"`
 	Annotations     types.Annotations     `json:"annotations"`
 	Ports           []types.ExposedPort   `json:"ports"`
@@ -62,6 +64,17 @@ type RuntimeImage struct {
 	Labels types.Labels `json:"labels,omitempty"`
 }
 
+type Volume struct {
+	Name      types.ACName `json:"name"`
+	Kind      string       `json:"kind"`
+	Source    string       `json:"source,omitempty"`
+	ReadOnly  *bool        `json:"readOnly,omitempty"`
+	Recursive *bool        `json:"recursive,omitempty"`
+	Mode      *string      `json:"mode,omitempty"`
+	UID       *int         `json:"uid,omitempty"`
+	GID       *int         `json:"gid,omitempty"`
+}
+
 func NewComposeFile(path string) (*ComposeFile, error) {
 	bs, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -77,7 +90,7 @@ func NewComposeFile(path string) (*ComposeFile, error) {
 	return composeFile, nil
 }
 
-func (composeFile *ComposeFile) FetchImages() error {
+func (composeFile *ComposeFile) fetchImages() error {
 	log.Print("fetch images...")
 	for _, app := range composeFile.Manifest.Apps {
 		if app.Image.ID.Empty() {
@@ -111,10 +124,23 @@ func (composeFile *ComposeFile) FetchImages() error {
 
 func (composeFile *ComposeFile) GetAppcPodManifest() (*schema.PodManifest, error) {
 	ver, _ := types.NewSemVer("0.8.10")
+	volumes := make([]types.Volume, len(composeFile.Manifest.Volumes))
+	for idx, vol := range composeFile.Manifest.Volumes {
+		volumes[idx] = types.Volume{
+			Name:      vol.Name,
+			Kind:      vol.Kind,
+			Source:    vol.Source,
+			ReadOnly:  vol.ReadOnly,
+			Recursive: vol.Recursive,
+			Mode:      vol.Mode,
+			UID:       vol.UID,
+			GID:       vol.GID,
+		}
+	}
 	result := &schema.PodManifest{
 		ACKind:          types.ACKind("PodManifest"),
 		ACVersion:       *ver,
-		Volumes:         composeFile.Manifest.Volumes,
+		Volumes:         volumes,
 		Isolators:       composeFile.Manifest.Isolators,
 		Annotations:     composeFile.Manifest.Annotations,
 		Ports:           composeFile.Manifest.Ports,
@@ -177,8 +203,35 @@ func (composeFile *ComposeFile) GetAppcPodManifest() (*schema.PodManifest, error
 	return result, nil
 }
 
+func (composeFile *ComposeFile) assertVolumes() error {
+	for _, volume := range composeFile.Manifest.Volumes {
+		if volume.Kind == "" {
+			volume.Kind = "host"
+		}
+		if volume.Kind == "host" {
+			if strings.HasPrefix(volume.Source, "./") {
+				cwd, err := os.Getwd()
+				if err != nil {
+					return err
+				}
+				volume.Source = filepath.Join(cwd, volume.Source)
+			}
+			if _, err := os.Stat(volume.Source); err != nil {
+				err = os.MkdirAll(volume.Source, 0777)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
+}
+
 func (composeFile *ComposeFile) Prepare(output string) error {
-	if err := composeFile.FetchImages(); err != nil {
+	if err := composeFile.fetchImages(); err != nil {
+		return err
+	}
+	if err := composeFile.assertVolumes(); err != nil {
 		return err
 	}
 	log.Print("generate pod-manifest...")

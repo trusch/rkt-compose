@@ -38,7 +38,7 @@ var runCmd = &cobra.Command{
 		verbose, _ := cmd.Flags().GetBool("verbose")
 		prepare()
 		composeFile := getComposeFile()
-		if err := lib.Run(viper.GetString("manifest"), strings.Join(composeFile.Networks, ","), interactive, verbose); err != nil {
+		if err := lib.Run(viper.GetString("manifest"), strings.Join(composeFile.Networks, ","), interactive, verbose, composeFile.Extra); err != nil {
 			log.Fatal(err)
 		}
 	},
