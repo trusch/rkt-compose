@@ -8,4 +8,4 @@ glide.lock: glide.yaml
 	glide update
 
 clean:
-	-rm -rf glide.lock rkt-compose vendor 
+	-rm -rf glide.lock rkt-compose vendor

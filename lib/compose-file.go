@@ -17,7 +17,7 @@ import (
 
 type ComposeFile struct {
 	Name     string
-	Cpu      string
+	CPU      string
 	Memory   string
 	Networks []string
 	Extra    []string
@@ -185,8 +185,8 @@ func (composeFile *ComposeFile) GetAppcPodManifest() (*schema.PodManifest, error
 			result.Apps[idx].App.Group = "0"
 		}
 	}
-	if composeFile.Cpu != "" {
-		cpuIso, err := types.NewResourceCPUIsolator(composeFile.Cpu, composeFile.Cpu)
+	if composeFile.CPU != "" {
+		cpuIso, err := types.NewResourceCPUIsolator(composeFile.CPU, composeFile.CPU)
 		if err != nil {
 			return nil, err
 		}
