@@ -15,6 +15,7 @@ import (
 	"strings"
 )
 
+// ComposeFile represents a single compose file
 type ComposeFile struct {
 	Name     string
 	CPU      string
@@ -24,6 +25,7 @@ type ComposeFile struct {
 	Manifest PodManifest
 }
 
+// A PodManifest mimics the appc PodManifest but without validation
 type PodManifest struct {
 	Apps            []*RuntimeApp         `json:"apps"`
 	Volumes         []*Volume             `json:"volumes"`
@@ -34,6 +36,7 @@ type PodManifest struct {
 	UserLabels      types.UserLabels      `json:"userLabels,omitempty"`
 }
 
+// A RuntimeApp mimics the appc RuntimeApp but without validation
 type RuntimeApp struct {
 	Name           types.ACName      `json:"name"`
 	Image          RuntimeImage      `json:"image"`
@@ -43,6 +46,7 @@ type RuntimeApp struct {
 	Annotations    types.Annotations `json:"annotations,omitempty"`
 }
 
+// A App mimics the appc App but without validation
 type App struct {
 	Exec              types.Exec            `json:"exec"`
 	EventHandlers     []types.EventHandler  `json:"eventHandlers,omitempty"`
@@ -58,12 +62,14 @@ type App struct {
 	UserLabels        types.UserLabels      `json:"userLabels,omitempty"`
 }
 
+// A RuntimeImage mimics the appc RuntimeImage but without validation
 type RuntimeImage struct {
 	Name   string       `json:"name,omitempty"`
 	ID     types.Hash   `json:"id"`
 	Labels types.Labels `json:"labels,omitempty"`
 }
 
+// A Volume mimics the appc Volume but without validation
 type Volume struct {
 	Name      types.ACName `json:"name"`
 	Kind      string       `json:"kind"`
@@ -75,6 +81,7 @@ type Volume struct {
 	GID       *int         `json:"gid,omitempty"`
 }
 
+// NewComposeFile parses a composefile from disk
 func NewComposeFile(path string) (*ComposeFile, error) {
 	bs, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -122,6 +129,7 @@ func (composeFile *ComposeFile) fetchImages() error {
 	return nil
 }
 
+// GetAppcPodManifest returns a appc conform manifest for this pod
 func (composeFile *ComposeFile) GetAppcPodManifest() (*schema.PodManifest, error) {
 	ver, _ := types.NewSemVer("0.8.10")
 	volumes := make([]types.Volume, len(composeFile.Manifest.Volumes))
@@ -227,6 +235,7 @@ func (composeFile *ComposeFile) assertVolumes() error {
 	return nil
 }
 
+// Prepare fetches images and creates host volume pathes if needed
 func (composeFile *ComposeFile) Prepare(output string) error {
 	if err := composeFile.fetchImages(); err != nil {
 		return err
