@@ -7,6 +7,7 @@ import (
 	"github.com/appc/spec/schema"
 	"github.com/appc/spec/schema/types"
 	"github.com/ghodss/yaml"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -17,68 +18,68 @@ import (
 
 // ComposeFile represents a single compose file
 type ComposeFile struct {
-	Name     string
-	CPU      string
-	Memory   string
-	Networks []string
-	Extra    []string
-	Manifest PodManifest
+	Name     string      `json:"name" yaml:"name,omitempty"`
+	CPU      string      `json:"cpu" yaml:"cpu,omitempty"`
+	Memory   string      `json:"memory" yaml:"memory,omitempty"`
+	Networks []string    `json:"networks" yaml:"networks,omitempty"`
+	Extra    []string    `json:"extra" yaml:"extra,omitempty"`
+	Manifest PodManifest `json:"manifest" yaml:"manifest,omitempty"`
 }
 
 // A PodManifest mimics the appc PodManifest but without validation
 type PodManifest struct {
-	Apps            []*RuntimeApp         `json:"apps"`
-	Volumes         []*Volume             `json:"volumes"`
-	Isolators       []types.Isolator      `json:"isolators"`
-	Annotations     types.Annotations     `json:"annotations"`
-	Ports           []types.ExposedPort   `json:"ports"`
-	UserAnnotations types.UserAnnotations `json:"userAnnotations,omitempty"`
-	UserLabels      types.UserLabels      `json:"userLabels,omitempty"`
+	Apps            []*RuntimeApp         `json:"apps" yaml:"apps,omitempty"`
+	Volumes         []*Volume             `json:"volumes" yaml:"volumes,omitempty"`
+	Isolators       []types.Isolator      `json:"isolators" yaml:"isolators,omitempty"`
+	Annotations     types.Annotations     `json:"annotations" yaml:"annotations,omitempty"`
+	Ports           []types.ExposedPort   `json:"ports" yaml:"ports,omitempty"`
+	UserAnnotations types.UserAnnotations `json:"userAnnotations,omitempty" yaml:"userAnnotations,omitempty"`
+	UserLabels      types.UserLabels      `json:"userLabels,omitempty" yaml:"userLabels,omitempty"`
 }
 
 // A RuntimeApp mimics the appc RuntimeApp but without validation
 type RuntimeApp struct {
-	Name           types.ACName      `json:"name"`
-	Image          RuntimeImage      `json:"image"`
-	App            *App              `json:"app,omitempty"`
-	ReadOnlyRootFS bool              `json:"readOnlyRootFS,omitempty"`
-	Mounts         []schema.Mount    `json:"mounts,omitempty"`
-	Annotations    types.Annotations `json:"annotations,omitempty"`
+	Name           types.ACName      `json:"name" yaml:"name,omitempty"`
+	Image          RuntimeImage      `json:"image" yaml:"image,omitempty"`
+	App            *App              `json:"app,omitempty" yaml:"app,omitempty"`
+	ReadOnlyRootFS bool              `json:"readOnlyRootFS,omitempty" yaml:"readOnlyRootFS,omitempty"`
+	Mounts         []schema.Mount    `json:"mounts,omitempty" yaml:"mounts,omitempty"`
+	Annotations    types.Annotations `json:"annotations,omitempty" yaml:"annotations,omitempty"`
 }
 
 // A App mimics the appc App but without validation
 type App struct {
-	Exec              types.Exec            `json:"exec"`
-	EventHandlers     []types.EventHandler  `json:"eventHandlers,omitempty"`
-	User              string                `json:"user"`
-	Group             string                `json:"group"`
-	SupplementaryGIDs []int                 `json:"supplementaryGIDs,omitempty"`
-	WorkingDirectory  string                `json:"workingDirectory,omitempty"`
-	Environment       types.Environment     `json:"environment,omitempty"`
-	MountPoints       []types.MountPoint    `json:"mountPoints,omitempty"`
-	Ports             []types.Port          `json:"ports,omitempty"`
-	Isolators         types.Isolators       `json:"isolators,omitempty"`
-	UserAnnotations   types.UserAnnotations `json:"userAnnotations,omitempty"`
-	UserLabels        types.UserLabels      `json:"userLabels,omitempty"`
+	Exec              types.Exec            `json:"exec" yaml:"exec,omitempty"`
+	EventHandlers     []types.EventHandler  `json:"eventHandlers,omitempty" yaml:"eventHandlers,omitempty"`
+	User              string                `json:"user" yaml:"user,omitempty"`
+	Group             string                `json:"group" yaml:"group,omitempty"`
+	SupplementaryGIDs []int                 `json:"supplementaryGIDs,omitempty" yaml:"supplementaryGIDs,omitempty"`
+	WorkingDirectory  string                `json:"workingDirectory,omitempty" yaml:"workingDirectory,omitempty"`
+	Environment       types.Environment     `json:"environment,omitempty" yaml:"environment,omitempty"`
+	MountPoints       []types.MountPoint    `json:"mountPoints,omitempty" yaml:"mountPoints,omitempty"`
+	Ports             []types.Port          `json:"ports,omitempty" yaml:"ports,omitempty"`
+	Isolators         types.Isolators       `json:"isolators,omitempty" yaml:"isolators,omitempty"`
+	UserAnnotations   types.UserAnnotations `json:"userAnnotations,omitempty" yaml:"userAnnotations,omitempty"`
+	UserLabels        types.UserLabels      `json:"userLabels,omitempty" yaml:"userLabels,omitempty"`
 }
 
 // A RuntimeImage mimics the appc RuntimeImage but without validation
 type RuntimeImage struct {
-	Name   string       `json:"name,omitempty"`
-	ID     types.Hash   `json:"id"`
-	Labels types.Labels `json:"labels,omitempty"`
+	Name   string       `json:"name,omitempty" yaml:"name,omitempty"`
+	ID     types.Hash   `json:"id" yaml:"id,omitempty"`
+	Labels types.Labels `json:"labels,omitempty" yaml:"labels,omitempty"`
 }
 
 // A Volume mimics the appc Volume but without validation
 type Volume struct {
-	Name      types.ACName `json:"name"`
-	Kind      string       `json:"kind"`
-	Source    string       `json:"source,omitempty"`
-	ReadOnly  *bool        `json:"readOnly,omitempty"`
-	Recursive *bool        `json:"recursive,omitempty"`
-	Mode      *string      `json:"mode,omitempty"`
-	UID       *int         `json:"uid,omitempty"`
-	GID       *int         `json:"gid,omitempty"`
+	Name      types.ACName `json:"name" yaml:"name,omitempty"`
+	Kind      string       `json:"kind" yaml:"kind,omitempty"`
+	Source    string       `json:"source,omitempty" yaml:"source,omitempty"`
+	ReadOnly  *bool        `json:"readOnly,omitempty" yaml:"readOnly,omitempty"`
+	Recursive *bool        `json:"recursive,omitempty" yaml:"recursive,omitempty"`
+	Mode      *string      `json:"mode,omitempty" yaml:"mode,omitempty"`
+	UID       *int         `json:"uid,omitempty" yaml:"uid,omitempty"`
+	GID       *int         `json:"gid,omitempty" yaml:"gid,omitempty"`
 }
 
 // NewComposeFile parses a composefile from disk
@@ -236,7 +237,7 @@ func (composeFile *ComposeFile) assertVolumes() error {
 }
 
 // Prepare fetches images and creates host volume pathes if needed
-func (composeFile *ComposeFile) Prepare(output string) error {
+func (composeFile *ComposeFile) Prepare(output io.Writer) error {
 	if err := composeFile.fetchImages(); err != nil {
 		return err
 	}
@@ -248,11 +249,11 @@ func (composeFile *ComposeFile) Prepare(output string) error {
 	if err != nil {
 		return err
 	}
-	bs, err := json.Marshal(manifest)
+	encoder := json.NewEncoder(output)
+	err = encoder.Encode(manifest)
 	if err != nil {
 		return err
 	}
-	log.Printf("write pod-manifest to %v...", output)
-	defer log.Printf("pod-manifest successfully written to %v.", output)
-	return ioutil.WriteFile(output, bs, 0644)
+	log.Print("pod-manifest successfully written")
+	return nil
 }

@@ -45,7 +45,12 @@ func prepare() {
 	if checkIfPrepareNeeded() {
 		log.Print("prepare pod-manifest...")
 		composeFile := getComposeFile()
-		if err := composeFile.Prepare(viper.GetString("manifest")); err != nil {
+		targetFile, err := os.Create(viper.GetString("manifest"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer targetFile.Close()
+		if err := composeFile.Prepare(targetFile); err != nil {
 			log.Fatal("error preparing pod-manifest: ", err)
 		}
 	} else {
